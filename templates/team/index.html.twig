@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Teams{% endblock %}
+
+{% block body %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    <a class="btn btn-success" href="{{ path('team.create') }}">Add New Team</a>
+    <table class="table">
+    <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Title</th>
+          <th scope="col">Strip</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for team in teams %}
+        <tr>
+          <th scope="row">{{ team.id }}</th>
+          <td><a href="{{ path('team.show', {id: team.id}) }}">{{ team.title }}</a></td>
+          <td>{{ team.strip }}</td>
+          <td><a class="text-danger" href="{{ path('team.remove', {id: team.id}) }}">Delete</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

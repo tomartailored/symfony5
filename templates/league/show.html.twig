@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}League - {{league.title}}{% endblock %}
+
+{% block body %}
+    <h1>League Info - {{league.title}}</h1>
+    <table class="table">
+    <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <td>{{ league.title }}</td>
+        </tr>
+    </thead>
+    </table>
+{% endblock %}

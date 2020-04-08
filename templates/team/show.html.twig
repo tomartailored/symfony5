@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Team - {{team.title}}{% endblock %}
+
+{% block body %}
+    <h1>Team Info - {{team.title}}</h1>
+    <table class="table">
+    <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <td>{{ team.title }}</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <th scope="col">Strip</th>
+          <td>{{ team.strip }}</td>
+        </tr>
+        <tr>
+          <th scope="col">Logo</th>
+          <td>
+              <img src="{{ '/logos/' ~ team.logo }}">
+          </td>
+        </tr>
+    </tbody>
+    </table>
+{% endblock %}
