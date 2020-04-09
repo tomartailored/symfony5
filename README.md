@@ -18,17 +18,31 @@ Respose :
                 { 
                   "token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1ODYyNTE5NTMsImV4cCI6MTU4NjI1NTU1Mywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoicmFodWwifQ.Sd-Gep09SClZI1crXgFSU4kwgPBWAjk4hM0-fP4veBP45JvoGiYeg3nUSYxXrMiKLI7xa6C-ibsqe6c3l370ZDoy8eYAq7HMi5XTvH4k..................” 
                 }
-================================================================================================================================
+============================================================================================================================
+0. Add a League
+URL : http://127.0.0.1:8000/api/league
+Method : POST
+BODY : 
+		{
+		   "title": "UK Premier"
+		}
+RESPONSE: 
+		{
+		    "status": 200,
+		    "success": {
+			"status": true,
+			"message": "League added successfully",
+			"data": {
+			    "id": 1
+			}
+		    }
+		}
+============================================================================================================================
 1. Get a list of football teams in a single league
-URL : http://127.0.0.1:8000/api/league-team-list
+URL : http://127.0.0.1:8000/api/league/{id}
+Pass id in url league {id}
 Method : GET
 Body : 
-                {
-                  "action":"get-teams",
-                  "get-teams-param": {
-                    "leagueId": 1
-                  }
-                }
 Response : 
                 {
                   "status": 200,
@@ -47,72 +61,63 @@ Response :
                     }
                   }
                 }
-================================================================================================================================
+============================================================================================================================
 2. Create a football team
-URL : http://127.0.0.1:8000/api/add-team
+URL : http://127.0.0.1:8000/api/league/{id}
+Pass id in url league {id}
 Method : POST
 BODY :
                 {
-                  "action":"add-team",
-                  "add-team-param": {
-                    "title": "test League team A",
-                    "leagueId":1,
-                    "strip": "LOL"
-                  }
-                }
+			"title": "Team UK",
+			"strip": "RED and WHITE"
+		}
 
 Response : 
-                {
-                    "status": 200,
-                    "success": {
-                        "status": true,
-                        "message": "",
-                        "data": []
-                    }
-                }
-================================================================================================================================
+               {
+		    "status": 200,
+		    "success": {
+			"status": true,
+			"message": "Team action performed successfully",
+			"data": {
+			    "id": 37
+			}
+		    }
+		}
+============================================================================================================================
 3. Modify all attributes of a football team
-URL : http://127.0.0.1:8000/api/update-team
+URL : http://localhost:8000/api/league/{id}/team/{teamId}
+Pass id in url league {id} team {teamId}
 Method : PUT
 BODY :
                 {
-                  "action":"edit-team",
-                  "edit-team-param": {
-                    "id": 1,
-                    "title": "test League team A",
-                    "leagueId":1,
-                    "strip": "LOL"
-                  }
-                }
+			"title":"Liver Pool",
+			"strip":"Yellow and Black"
+		}
 
 Response : 
                 {
-                    "status": 200,
-                    "success": {
-                        "status": true,
-                        "message": "",
-                        "data": []
-                    }
-                }
-================================================================================================================================
+		    "status": 200,
+		    "success": {
+			"status": true,
+			"message": "Team action performed successfully",
+			"data": {
+			    "id": 37
+			}
+		    }
+		}
+============================================================================================================================
 4. Delete a football league
-URL : http://localhost:8000/api/delete-league
+URL : http://localhost:8000/api/league/{id}
+Pass id in url league {id}
 Method : DELTE
 BODY :
-                {
-                  "action":"remove-league",
-                  "remove-league-param": {
-                    "leagueId":1
-                  }
-                }
-
 Response : 
                 {
-                    "status": 200,
-                    "success": {
-                        "status": true,
-                        "message": "League removed successfully",
-                        "data": []
-                    }
-                }
-================================================================================================================================
+		    "status": 200,
+		    "success": {
+			"status": true,
+			"message": "League removed successfully",
+			"data": []
+		    }
+		}
+============================================================================================================================
