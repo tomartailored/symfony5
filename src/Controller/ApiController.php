@@ -25,13 +25,18 @@ class ApiController extends AbstractController
     /**
      * Fetches league teams
      *      
-     * @Route("/league-team-list", name="league_team_list", methods={"GET"})
+     * @Route("/league/{id}", name="league_team_list", methods={"GET"})
      * @param Request $request
      * @param ApiHelper $apiHelper
      * @return json
      */
-    public function leagueTeamListAction(Request $request, ApiHelper $apiHelper)
+    public function leagueTeamListAction($id, Request $request, ApiHelper $apiHelper)
     {
+        $request->request->add([
+            'action' => 'get-teams',
+            'get-teams-param' => ['leagueId' => (int) $id]
+        ]);
+        
         $response = $this->_validateApiCall($request, $apiHelper, 'get-teams');
         if (!$response['status']) {
             return $this->respondValidationError($response['message']);
@@ -42,13 +47,18 @@ class ApiController extends AbstractController
     /**
      * Add league
      *      
-     * @Route("/add-league", name="add_league", methods={"POST"})
+     * @Route("/league", name="add_league", methods={"POST"})
      * @param Request $request
      * @param ApiHelper $apiHelper
      * @return json
      */
     public function addLeagueAction(Request $request, ApiHelper $apiHelper)
     {
+        $data = json_decode($request->getContent(), true);
+        $request->request->add([
+            'action' => 'add-league',
+            'add-league-param' => ['title' => isset($data['title']) ? $data['title'] : '',]
+        ]);
         $response = $this->_validateApiCall($request, $apiHelper, 'add-league');
         if (!$response['status']) {
             return $this->respondValidationError($response['message']);
@@ -59,13 +69,22 @@ class ApiController extends AbstractController
     /**
      * Add team for league
      *      
-     * @Route("/add-team", name="add_team", methods={"POST"})
+     * @Route("/league/{id}", name="add_team", methods={"POST"})
      * @param Request $request
      * @param ApiHelper $apiHelper
      * @return json
      */
-    public function addTeamAction(Request $request, ApiHelper $apiHelper)
+    public function addTeamAction($id, Request $request, ApiHelper $apiHelper)
     {
+        $data = json_decode($request->getContent(), true);
+        $request->request->add([
+            'action' => 'add-team',
+            'add-team-param' => [
+                'title' => isset($data['title']) ? $data['title'] : '',
+                'leagueId' => (int) $id,
+                'strip' => isset($data['strip']) ? $data['strip'] : '',
+            ]
+        ]);
         $response = $this->_validateApiCall($request, $apiHelper, 'add-team');
         if (!$response['status']) {
             return $this->respondValidationError($response['message']);
@@ -76,13 +95,23 @@ class ApiController extends AbstractController
     /**
      * Edit team for league
      *      
-     * @Route("/update-team", name="update_team", methods={"PUT"})
+     * @Route("/league/{id}/team/{teamId}", name="update_team", methods={"PUT"})
      * @param Request $request
      * @param ApiHelper $apiHelper
      * @return json
      */
-    public function updateTeamAction(Request $request, ApiHelper $apiHelper)
+    public function updateTeamAction($id, $teamId, Request $request, ApiHelper $apiHelper)
     {
+        $data = json_decode($request->getContent(), true);
+        $request->request->add([
+            'action' => 'edit-team',
+            'edit-team-param' => [
+                'id' => (int) $teamId,
+                'title' => isset($data['title']) ? $data['title'] : '',
+                'leagueId' => (int) $id,
+                'strip' => isset($data['strip']) ? $data['strip'] : '',
+            ]
+        ]);
         $response = $this->_validateApiCall($request, $apiHelper, 'edit-team');
         if (!$response['status']) {
             return $this->respondValidationError($response['message']);
@@ -93,13 +122,17 @@ class ApiController extends AbstractController
     /**
      * Remove league
      *      
-     * @Route("/delete-league", name="delete_team", methods={"DELETE"})
+     * @Route("/league/{id}", name="delete_team", methods={"DELETE"})
      * @param Request $request
      * @param ApiHelper $apiHelper
      * @return json
      */
-    public function deleteLeagueAction(Request $request, ApiHelper $apiHelper)
+    public function deleteLeagueAction($id, Request $request, ApiHelper $apiHelper)
     {
+        $request->request->add([
+            'action' => 'remove-league',
+            'remove-league-param' => ['leagueId' => (int) $id]
+        ]);
         $response = $this->_validateApiCall($request, $apiHelper, 'remove-league');
         if (!$response['status']) {
             return $this->respondValidationError($response['message']);
@@ -118,11 +151,7 @@ class ApiController extends AbstractController
      */
     protected function _validateApiCall(Request $request, ApiHelper $apiHelper, $action)
     {
-        $data = json_decode($request->getContent(), true);
-        if ($data === null) {
-            return ['status' => false, 'message' => 'Wrong request data'];
-        }
-        $request->request->replace($data);
+        
         if ($request->request->get('action') != $action) {
             return ['status' => false, 'message' => 'Wrong method or action'];
         }

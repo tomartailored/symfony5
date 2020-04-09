@@ -11,6 +11,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @see \App\Tests\Services\ApiHelperTest
+ */
 class ApiHelper
 {
     /**
@@ -179,7 +182,7 @@ class ApiHelper
             case 'get-teams':
                 $param = $request->request->get('get-teams-param');
                 $league = $this->_fetchLeagueRepo($entityManager, $param['leagueId']);
-                $message = 'League not foundw with leagueId ' . $param['leagueId'];
+                $message = 'League not found with leagueId ' . $param['leagueId'];
                 if ($league) {
                     $status = true;
                     $message = 'List of team data for league';
@@ -198,6 +201,7 @@ class ApiHelper
             case 'remove-league':
                 $param = $request->request->get('remove-league-param');
                 $league = $this->_fetchLeagueRepo($entityManager, $param['leagueId']);
+                $message = 'League not found';
                 if ($league) {
                     $status = true;
                     $entityManager->remove($league);

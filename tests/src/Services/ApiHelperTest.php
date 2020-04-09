@@ -8,6 +8,9 @@ use App\Services\ApiHelper;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * @see \App\Services\ApiHelper
+ */
 class ApiHelperTest extends KernelTestCase
 {
     
@@ -135,21 +138,24 @@ class ApiHelperTest extends KernelTestCase
     {
         // ARRANGE
         
-        if ($modifyParam)
-        {
+        if ($modifyParam) {
             switch ($requestParam['action'])
             {
+                case 'remove-league':
                 case 'get-teams':
-                    $requestParam['get-teams-param']['leagueId'] = $this->_league->getId();
-                    break;
+                    $requestParam[$requestParam['action'].'-param']['leagueId'] = $this->_league->getId();
+                    break;                
                 
+                case 'edit-team':
+                    $requestParam[$requestParam['action'].'-param']['leagueId'] = $this->_league->getId();
+                    $requestParam[$requestParam['action'].'-param']['id'] = $this->_team->getId();
+                    break;
             }
         }
         
         $request = new Request();
-        if ($requestParam) {
-            $request->request->add($requestParam);
-        }        
+        $request->request->add($requestParam);
+        
         $apiHelper = new ApiHelper();
         
         // ACT
@@ -157,12 +163,21 @@ class ApiHelperTest extends KernelTestCase
         $response = $apiHelper->action($request, $this->_entityManager);        
         
         // ASSERT
+        
         $this->assertEquals($expected['status'], $response['status']);
         $this->assertEquals($expected['message'], $response['message']);
-        $this->assertEquals($expected['data']['league'], $response['data']['league']);
-        for ( $i = 0 ; $i < count($expected['data']['teams']) ; $i++) {
-            $this->assertEquals($expected['data']['teams'][$i]['title'], $response['data']['teams'][$i]['title']);
-            $this->assertEquals($expected['data']['teams'][$i]['strip'], $response['data']['teams'][$i]['strip']);
+        
+        if ($requestParam['action'] == 'get-teams' && $modifyParam) {
+            $this->assertEquals($expected['data']['league'], $response['data']['league']);
+            for ( $i = 0 ; $i < count($expected['data']['teams']) ; $i++) {
+                $this->assertEquals($expected['data']['teams'][$i]['title'], $response['data']['teams'][$i]['title']);
+                $this->assertEquals($expected['data']['teams'][$i]['strip'], $response['data']['teams'][$i]['strip']);
+            }
+        }
+        
+        if ($requestParam['action'] == 'edit-team' && $modifyParam) {
+            $this->assertEquals($expected['updatedTeamData']['title'], $this->_team->getTitle());
+            $this->assertEquals($expected['updatedTeamData']['strip'], $this->_team->getStrip());
         }
     }
     
@@ -170,7 +185,7 @@ class ApiHelperTest extends KernelTestCase
     {                
         $tests = [];
         
-        // SCENARIO: Sending correct action and params
+        // SCENARIO: Sending correct action and params for action get teams
         // EXPECTED: status true, message and data
         $tests[] = [
             [
@@ -192,6 +207,91 @@ class ApiHelperTest extends KernelTestCase
                 'get-teams-param' => ['leagueId' => ''], 
             ],
             true
+        ];
+        
+        // SCENARIO: Sending correct action and incorrect params for action get teams
+        // EXPECTED: status true, message and data
+        $tests[] = [
+            [
+                'status' => false,
+                'message' => 'League not found with leagueId ',
+                'data' => []                
+            ],
+            [
+                'action' => 'get-teams',
+                'get-teams-param' => ['leagueId' => ''], 
+            ],
+            false
+        ];
+        
+        // SCENARIO: Sending correct action and params for action remove-league
+        // EXPECTED: status true, message
+        $tests[] = [
+            [
+                'status' => true,
+                'message' => 'League removed successfully',                
+            ],
+            [
+                'action' => 'remove-league',
+                'remove-league-param' => ['leagueId' => ''], 
+            ],
+            true
+        ];
+        
+        // SCENARIO: Sending correct action and incorrect params for action remove-league 
+        // EXPECTED: status false, message
+        $tests[] = [
+            [
+                'status' => false,
+                'message' => 'League not found',                
+            ],
+            [
+                'action' => 'remove-league',
+                'remove-league-param' => ['leagueId' => ''], 
+            ],
+            false
+        ];
+        
+        // SCENARIO: Sending correct action and params for action edit-league
+        // EXPECTED: status true, message and update data
+        $tests[] = [
+            [
+                'status' => true,
+                'message' => 'Team action performed successfully',
+                'updatedTeamData' => [
+                    'title' => 'Test Team 1',
+                    'strip' => 'Test Strip 1',
+                ],
+            ],
+            [
+                'action' => 'edit-team',
+                'edit-team-param' => [
+                    'id' => '',
+                    'leagueId' => '',
+                    'title' => 'Test Team 1',
+                    'strip' => 'Test Strip 1',                    
+                ], 
+            ],
+            true
+        ];
+        
+        // SCENARIO: Sending correct action and inccorrect params for edit-league
+        // EXPECTED: status false, message
+        $tests[] = [
+            [
+                'status' => false,
+                'message' => 'Team does not exists for id: ',
+            ],
+            [
+                'action' => 'edit-team',
+                'edit-team-param' => [
+                    'id' => '',
+                    'leagueId' => '',
+                    'title' => 'Test Team 1',
+                    'strip' => 'Test Strip 1',                    
+                ], 
+            ],
+            false
         ];
         
         return $tests;        
